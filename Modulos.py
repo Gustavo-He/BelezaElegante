@@ -191,16 +191,32 @@ def CriarCaixaDeTexto(Local,Largura,Altura,Linha,Coluna,Texto=0,Modo="Padrão"):
             Caixa.delete(0, "end")
             Caixa.insert(0, new_text)
         Caixa.bind("<KeyRelease>", format_cep)
+    elif Modo == "Nome":
+        def format_nome(event=None):
+            text = Caixa.get()
+            new_text = ""
+            if event.keysym.lower() == "backspace":
+                return
+            for index in range(len(text)):
+                if not text[index].lower() in "abcdefghijklmnopqrstuvwxyz ":
+                    continue
+                else:
+                    new_text += text[index]
+            Caixa.delete(0, "end")
+            Caixa.insert(0, new_text)
+
+        Caixa.bind("<KeyRelease>", format_nome)
     return Caixa
 
 # ---------------Label---------------
 
 
-def CriarLabel(Local,Texto,Linha,Coluna,Cor="black"):
+def CriarLabel(Local,Texto,Linha,Coluna,Cor="black", padx=1, pady=1):
     Label = Tk.CTkLabel(Local,text=Texto)
     Label.grid(row=Linha,column=Coluna)
     if Cor!="black":
         Label.configure(text_color=Cor)
+    Label.configure(padx=padx, pady=pady)
     return Label
 
 
@@ -334,3 +350,50 @@ def criar_servico(local, titulo, descricao, preco, horario_disponivel, linha, ev
     CriarBotão(servicoFrame, "Agendar", evento, 0, 2, 90, 20)
     # btnServicoAgender = Tk.CTkButton(servicoFrame, text="Agendar", command=evento)
     # btnServicoAgender.grid(row=0, column=2)
+
+
+def checar_data(data):
+    if len(data) == 10:
+        dia, mes, ano = data.split("/")
+
+        if 1 <= int(dia) <= 31 and 1 <= int(mes) <= 12 and int(ano) >= 1:
+            return True
+
+    return False
+
+
+def checar_hora(hora, agendamentos):
+    if len(hora) == 5:
+        hora, minuto = hora.split(":", 1)
+        if 0 <= int(hora) < 24 and 0 <= int(minuto) < 60:
+            for servico in agendamentos:
+                print(servico)
+                if "Corte de cabelo" == servico:
+                    if not 16 <= int(hora) <= 19:
+                        return False
+
+                elif "Manicure" == servico:
+                    if not 8 <= int(hora) <= 18:
+                        return False
+
+                elif "Maquiagem" == servico:
+                    if not 9 <= int(hora) <= 12:
+                        return False
+
+                elif "Pedicure" == servico:
+                    if not 5 <= int(hora) <= 14:
+                        return False
+
+                else:
+                    return False
+
+            return True
+
+    return False
+
+
+def checar_email(email):
+    if email.find("@") != -1 and email.find(".") != -1:
+        return True
+
+    return False
