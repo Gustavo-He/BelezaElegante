@@ -44,7 +44,7 @@ class App:
 
         self.agendamentosFrame = ctk.CTkFrame(self.tela1)
 
-    def start(self):
+    def criar_tela1(self):
         Modulos.CriarLabel(self.tela1, "Beleza Elegante", 0, 0)
 
         frameInputs = Modulos.CriarFrame(self.tela1, 1, 0, 120, 60)
@@ -57,24 +57,33 @@ class App:
         Modulos.CriarLabel(frameHora, "Hora", 0, 0, padx=10)
         self.agendamentoHora = Modulos.CriarCaixaDeTexto(frameHora, 100, 20, 0, 1, Modo="Hora")
 
-        Modulos.CriarBotão(self.tela1, "Serviços", self.entrar_tela2, 1, 1, 100, 50)
-        self.btnAgendar = Modulos.CriarBotão(self.tela1, "Agendar", self.agendar, 2, 0, 100, 50)
+        Modulos.CriarBotão(self.tela1, "Serviços", self.tela2_entrar(), 1, 1, 100, 50)
+        self.btnAgendar = Modulos.CriarBotão(self.tela1, "Agendar", self.tela1_agendar_servico, 2, 0, 100, 50)
 
-    def tela1_raise_error(self, error_list):
-        texto = "Erro:\n"
-        for error in error_list:
-            texto += error+"\n"
+    def tela1_entrar(self):
+        self.agendamentosFrame.destroy()
 
-        self.tela1ErrorLabel.configure(text=texto)
+        self.agendamentosFrame = ctk.CTkFrame(self.tela1)
+        self.agendamentosFrame.grid(row=2, column=1)
 
-    def agendar(self):
+        servicosTitle = Modulos.CriarLabel(self.agendamentosFrame, "Serviços:", 0, 0)
+        servicosTitle.configure(width=120, anchor="w", padx=5)
+
+        for index, nome in enumerate(self.agendamentos):
+            tempLabel = Modulos.CriarLabel(self.agendamentosFrame, "- " + nome, index + 1, 0)
+            tempLabel.configure(width=100, anchor="w")
+
+        self.tela2.grid_remove()
+        self.tela1.grid(row=0, column=0)
+
+    def tela1_agendar_servico(self):
         error_list = []
         length_bool = len(self.agendamentos) > 0
         data_bool = Modulos.checar_data(self.agendamentoData.get())
         hora_bool = Modulos.checar_hora(self.agendamentoHora.get(), self.agendamentos)
 
         if length_bool and data_bool and hora_bool:
-            self.entrar_tela3()
+            self.tela3_entrar()
         else:
             if not length_bool:
                 error_list.append("Não há agendamentos")
@@ -88,7 +97,72 @@ class App:
             self.tela1_raise_error(error_list)
             self.btnAgendar.configure(fg_color="darkred")
 
-    def confirmar_agendamento(self):
+    def tela1_raise_error(self, error_list):
+        texto = "Erro:\n"
+        for error in error_list:
+            texto += error+"\n"
+
+        self.tela1ErrorLabel.configure(text=texto)
+
+    def tela2_entrar(self):
+        Modulos.criar_servico(self.tela2, "Corte de cabelo", "Faz um corte daora no cabelo", "R$20", "16:00 - 19:00", 0, lambda: self.tela2_adicionar_a_reserva("Corte de cabelo"))
+        Modulos.criar_servico(self.tela2, "Manicure", "Deixa a mão bonita", "R$70", "8:00 - 18:00", 1, lambda: self.tela2_adicionar_a_reserva("Manicure"))
+        Modulos.criar_servico(self.tela2, "Pedicure", "Deixa o pé legal", "R$50", "5:00 - 14:00", 2, lambda: self.tela2_adicionar_a_reserva("Pedicure"))
+        Modulos.criar_servico(self.tela2, "Maquiagem", "Faz maquiagem bonita", "R$200", "9:00 - 12:00", 3, lambda: self.tela2_adicionar_a_reserva("Maquiagem"))
+
+        Modulos.CriarBotão(self.tela2, "Voltar", self.tela1_entrar(), 4, 0, 80, 15)
+
+        self.tela1.grid_remove()
+        self.tela2.grid(row=0, column=0)
+
+    def tela2_adicionar_a_reserva(self, nomeReserva):
+        for index in range(len(self.agendamentos)):
+            if self.agendamentos[index] == nomeReserva:
+                self.agendamentos.pop(index)
+                break
+        else:
+            self.agendamentos.append(nomeReserva)
+
+    def tela3_entrar(self):
+        frameDataHora = Modulos.CriarFrame(self.tela3, 0, 0, 100, 50)
+
+        Modulos.CriarLabel(frameDataHora, "Data: "+self.agendamentoData.get(), 0, 0)
+        Modulos.CriarLabel(frameDataHora, "Hora: "+self.agendamentoHora.get(), 1, 0)
+
+        agendamentosFrame = ctk.CTkFrame(self.tela3)
+        agendamentosFrame.grid(row=0, column=1)
+
+        Modulos.CriarLabel(agendamentosFrame, "Serviços:", 0, 0)
+
+        for index, nome in enumerate(self.agendamentos):
+            Modulos.CriarLabel(agendamentosFrame, "- "+nome, index+1, 0)
+
+        nomeFrame = Modulos.CriarFrame(self.tela3, 2, 0, 200, 20)
+        Modulos.CriarLabel(nomeFrame, "Nome  ", 0, 0)
+        self.nomeEntry = Modulos.CriarCaixaDeTexto(nomeFrame, 150, 20, 0, 1, Modo="Nome")
+        self.nomeEntry.configure()
+
+        telFrame = Modulos.CriarFrame(self.tela3, 3, 0, 200, 20)
+        Modulos.CriarLabel(telFrame, "Telefone  ", 0, 0)
+        self.telEntry = Modulos.CriarCaixaDeTexto(telFrame, 150, 20, 0, 1, Modo="Telefone")
+
+        emailFrame = Modulos.CriarFrame(self.tela3, 4, 0, 200, 20)
+        Modulos.CriarLabel(emailFrame, "E-mail  ", 0, 0)
+        self.emailEntry = Modulos.CriarCaixaDeTexto(emailFrame, 150, 20, 0, 1)
+
+        self.confirmarAgendamentoBtn = Modulos.CriarBotão(self.tela3, "Confirmar agendamento", self.tela3_confirmar_agendamento, 5, 0, 80, 15)
+
+        self.tela1.grid_remove()
+        self.tela3.grid(row=0, column=0)
+
+    def tela3_raise_error(self, error_list):
+        text = ""
+        for error in error_list:
+            text += error+"\n"
+
+        self.tela3ErrorLabel.configure(text=text)
+
+    def tela3_confirmar_agendamento(self):
         nome_bool = len(self.nomeEntry.get()) > 0
         tel_bool = len(self.telEntry.get()) == 14
         email_bool = Modulos.checar_email(self.emailEntry.get())
@@ -129,82 +203,7 @@ class App:
 
             self.confirmarAgendamentoBtn.configure(fg_color="darkred")
 
-    def entrar_tela3(self):
-        frameDataHora = Modulos.CriarFrame(self.tela3, 0, 0, 100, 50)
-
-        Modulos.CriarLabel(frameDataHora, "Data: "+self.agendamentoData.get(), 0, 0)
-        Modulos.CriarLabel(frameDataHora, "Hora: "+self.agendamentoHora.get(), 1, 0)
-
-        agendamentosFrame = ctk.CTkFrame(self.tela3)
-        agendamentosFrame.grid(row=0, column=1)
-
-        Modulos.CriarLabel(agendamentosFrame, "Serviços:", 0, 0)
-
-        for index, nome in enumerate(self.agendamentos):
-            Modulos.CriarLabel(agendamentosFrame, "- "+nome, index+1, 0)
-
-        nomeFrame = Modulos.CriarFrame(self.tela3, 2, 0, 200, 20)
-        Modulos.CriarLabel(nomeFrame, "Nome  ", 0, 0)
-        self.nomeEntry = Modulos.CriarCaixaDeTexto(nomeFrame, 150, 20, 0, 1, Modo="Nome")
-        self.nomeEntry.configure()
-
-        telFrame = Modulos.CriarFrame(self.tela3, 3, 0, 200, 20)
-        Modulos.CriarLabel(telFrame, "Telefone  ", 0, 0)
-        self.telEntry = Modulos.CriarCaixaDeTexto(telFrame, 150, 20, 0, 1, Modo="Telefone")
-
-        emailFrame = Modulos.CriarFrame(self.tela3, 4, 0, 200, 20)
-        Modulos.CriarLabel(emailFrame, "E-mail  ", 0, 0)
-        self.emailEntry = Modulos.CriarCaixaDeTexto(emailFrame, 150, 20, 0, 1)
-
-        self.confirmarAgendamentoBtn = Modulos.CriarBotão(self.tela3, "Confirmar agendamento", self.confirmar_agendamento, 5, 0, 80, 15)
-
-        self.tela1.grid_remove()
-        self.tela3.grid(row=0, column=0)
-
-    def entrar_tela2(self):
-        Modulos.criar_servico(self.tela2, "Corte de cabelo", "Faz um corte daora no cabelo", "R$20", "16:00 - 19:00", 0, lambda: self.adicionar_a_reserva("Corte de cabelo"))
-        Modulos.criar_servico(self.tela2, "Manicure", "Deixa a mão bonita", "R$70", "8:00 - 18:00", 1, lambda: self.adicionar_a_reserva("Manicure"))
-        Modulos.criar_servico(self.tela2, "Pedicure", "Deixa o pé legal", "R$50", "5:00 - 14:00", 2, lambda: self.adicionar_a_reserva("Pedicure"))
-        Modulos.criar_servico(self.tela2, "Maquiagem", "Faz maquiagem bonita", "R$200", "9:00 - 12:00", 3, lambda: self.adicionar_a_reserva("Maquiagem"))
-
-        Modulos.CriarBotão(self.tela2, "Voltar", self.entrar_tela1, 4, 0, 80, 15)
-
-        self.tela1.grid_remove()
-        self.tela2.grid(row=0, column=0)
-
-    def entrar_tela1(self):
-        self.agendamentosFrame.destroy()
-
-        self.agendamentosFrame = ctk.CTkFrame(self.tela1)
-        self.agendamentosFrame.grid(row=2, column=1)
-
-        servicosTitle = Modulos.CriarLabel(self.agendamentosFrame, "Serviços:", 0, 0)
-        servicosTitle.configure(width=120, anchor="w", padx=5)
-
-        for index, nome in enumerate(self.agendamentos):
-            tempLabel = Modulos.CriarLabel(self.agendamentosFrame, "- "+nome, index+1, 0)
-            tempLabel.configure(width=100, anchor="w")
-
-        self.tela2.grid_remove()
-        self.tela1.grid(row=0, column=0)
-
-    def adicionar_a_reserva(self, nomeReserva):
-        for index in range(len(self.agendamentos)):
-            if self.agendamentos[index] == nomeReserva:
-                self.agendamentos.pop(index)
-                break
-        else:
-            self.agendamentos.append(nomeReserva)
-
-    def tela3_raise_error(self, error_list):
-        text = ""
-        for error in error_list:
-            text += error+"\n"
-
-        self.tela3ErrorLabel.configure(text=text)
-
-
 
 app = App()
-app.start()
+app.criar_tela1()
 app.screen.mainloop()
