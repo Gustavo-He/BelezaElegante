@@ -20,7 +20,10 @@
 
 
 import customtkinter as ctk
-import telas
+import tela1
+import tela2
+import tela3
+import telaConfirmada
 
 
 class App:
@@ -33,10 +36,10 @@ class App:
         self.screen.title("Beleza Elegante")
         self.screen.resizable(False, False)
 
-        self.telaConfirmada = telas.Tela4(self)
-        self.tela3 = telas.Tela3(self)
-        self.tela2 = telas.Tela2(self)
-        self.tela1 = telas.Tela1(self)
+        self.telaConfirmada = telaConfirmada.Tela4(self)
+        self.tela3 = tela3.Tela3(self)
+        self.tela2 = tela2.Tela2(self)
+        self.tela1 = tela1.Tela1(self)
 
 
 app = App()
